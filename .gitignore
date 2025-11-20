@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Remove Application configs
+src/main/resources/application.yml

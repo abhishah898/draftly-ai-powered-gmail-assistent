@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+app:
+  google:
+    client-id: 990519200202-jgo8gfe8j3l40a2uiacjp2i6106q8tq5.apps.googleusercontent.com
+    client-secret: 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
+    redirect-uri: http://localhost:8080/oauth2/callback
+    scopes: "openid email profile https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify"
+    auth-uri: https://accounts.google.com/o/oauth2/v2/auth
+    token-uri: https://oauth2.googleapis.com/token
+    gmail-api-base: https://gmail.googleapis.com/gmail/v1

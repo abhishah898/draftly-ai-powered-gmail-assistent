@@ -1,4 +1,4 @@
-package com.example.draftly;
+package com.assistent.draftly;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

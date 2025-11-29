@@ -67,7 +67,10 @@ public class OAuthController {
     @GetMapping("/authorize")
     public ResponseEntity<Void> authorize(@RequestParam(value = "state", required = false) String state) {
         URI uri = oauthService.buildAuthorizationUrl(state == null ? "app" : state);
-        return ResponseEntity.status(302).header(HttpHeaders.LOCATION, uri.toString()).build();
+        return ResponseEntity
+                .status(302)
+                .header(HttpHeaders.LOCATION, uri.toString())
+                .build();
     }
 
     // Google will redirect here with ?code=...&state=...

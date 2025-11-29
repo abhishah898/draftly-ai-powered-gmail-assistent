@@ -2,8 +2,6 @@ package com.assistent.draftly.service;
 
 import com.assistent.draftly.entity.GmailToken;
 import com.assistent.draftly.repository.GmailTokenRepository;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -20,7 +18,7 @@ import java.util.Optional;
 public class GmailOAuthService {
     private final WebClient webClient;
 
-    private final GmailTokenRepository repo;
+    private final GmailTokenRepository gmailTokenRepository;
 
     @Value("${app.google.client-id}")
     private String id;
@@ -50,7 +48,7 @@ public class GmailOAuthService {
         this.webClient = WebClient.builder()
                 .codecs(config -> config.defaultCodecs().maxInMemorySize(10 * 1024 * 1024)) // 10 MB
                 .build();
-        this.repo = repo;
+        this.gmailTokenRepository = repo;
     }
 
     public Mono<Map> getUserInfoFromAccessToken(String accessToken) {
@@ -104,28 +102,21 @@ public class GmailOAuthService {
                 .bodyToMono(Map.class);
     }
 
-//    public Mono<Map> getProfileFromIdToken(String idToken) {
-//        // id_token is JWT - for quick demo we can call Google's tokeninfo endpoint
-//        return webClient.get()
-//                .uri("https://oauth2.googleapis.com/tokeninfo?id_token={id}", idToken)
-//                .retrieve()
-//                .bodyToMono(Map.class);
-//    }
-
     public GmailToken upsertToken(String googleUserId, String email, String refreshToken, String accessToken, Integer expiresInSeconds) {
-        Optional<GmailToken> opt = repo.findByGoogleUserId(googleUserId);
+        Optional<GmailToken> opt = gmailTokenRepository.findByGoogleUserId(googleUserId);
         GmailToken token = opt.orElseGet(GmailToken::new);
         token.setGoogleUserId(googleUserId);
         token.setEmail(email);
-        if (refreshToken != null && !refreshToken.isBlank()) token.setRefreshToken(refreshToken);
+        if (refreshToken != null && !refreshToken.isBlank())
+            token.setRefreshToken(refreshToken);
         token.setAccessToken(accessToken);
         if (expiresInSeconds != null) {
             token.setAccessTokenExpiryAt(Instant.now().plusSeconds(expiresInSeconds));
         }
-        return repo.save(token);
+        return gmailTokenRepository.save(token);
     }
 
-    public Optional<GmailToken> getTokenForEmail(String email) {
-        return repo.findByEmail(email);
-    }
+//    public Optional<GmailToken> getTokenForEmail(String email) {
+//        return gmailTokenRepository.findByEmail(email);
+//    }
 }

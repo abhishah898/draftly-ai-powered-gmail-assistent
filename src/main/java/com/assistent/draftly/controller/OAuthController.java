@@ -92,11 +92,18 @@ public class OAuthController {
 
                                 String email = (String) profile.get("email");
                                 String sub = (String) profile.get("id");
-
+                                System.out.println("----------------------\n"
+                                        + email
+                                        + "\n------------------\n"
+                                        + sub);
                                 oauthService.upsertToken(sub, email, refreshToken, accessToken, expiresIn);
 
                                 // Fetch UNREAD messages with FULL details
-                                return gmailApiService.listUnreadMessagesWithDetails(email)
+                                return oauthService.upsertToken(sub, email, refreshToken, accessToken, expiresIn)
+                                        .doOnNext(t -> System.out.println("TOKEN SAVED: " + t.getEmail()))
+                                        .then(
+                                                gmailApiService.listUnreadMessagesWithDetails(email)
+                                        )
                                         .map(messages -> {
 
                                             StringBuilder sb = new StringBuilder();

@@ -1,14 +1,12 @@
 package com.assistent.draftly.repository;
 
 import com.assistent.draftly.entity.GmailToken;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
-import java.util.OptionalInt;
+import reactor.core.publisher.Mono;
 
 @Repository
-public interface GmailTokenRepository extends JpaRepository<GmailToken, Long> {
-    Optional<GmailToken> findByEmail(String email);
-    Optional<GmailToken> findByGoogleUserId(String googleUserId);
+public interface GmailTokenRepository extends R2dbcRepository<GmailToken, Long> {
+    Mono<GmailToken> findByEmail(String email);
+    Mono<GmailToken> findByGoogleUserId(String googleUserId);
 }

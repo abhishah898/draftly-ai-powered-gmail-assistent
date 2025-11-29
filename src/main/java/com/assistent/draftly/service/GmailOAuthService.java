@@ -12,7 +12,6 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class GmailOAuthService {
@@ -102,21 +101,30 @@ public class GmailOAuthService {
                 .bodyToMono(Map.class);
     }
 
-    public GmailToken upsertToken(String googleUserId, String email, String refreshToken, String accessToken, Integer expiresInSeconds) {
-        Optional<GmailToken> opt = gmailTokenRepository.findByGoogleUserId(googleUserId);
-        GmailToken token = opt.orElseGet(GmailToken::new);
-        token.setGoogleUserId(googleUserId);
-        token.setEmail(email);
-        if (refreshToken != null && !refreshToken.isBlank())
-            token.setRefreshToken(refreshToken);
-        token.setAccessToken(accessToken);
-        if (expiresInSeconds != null) {
-            token.setAccessTokenExpiryAt(Instant.now().plusSeconds(expiresInSeconds));
-        }
-        return gmailTokenRepository.save(token);
-    }
+    public Mono<GmailToken> upsertToken(
+            String googleUserId,
+            String email,
+            String refreshToken,
+            String accessToken,
+            Integer expiresInSeconds
+    ) {
+        return gmailTokenRepository.findByGoogleUserId(googleUserId)
+                .defaultIfEmpty(new GmailToken())
+                .flatMap(token -> {
+                    token.setGoogleUserId(googleUserId);
+                    token.setEmail(email);
 
-//    public Optional<GmailToken> getTokenForEmail(String email) {
-//        return gmailTokenRepository.findByEmail(email);
-//    }
+                    // check if refresh token expired
+                    if (refreshToken != null && !refreshToken.isBlank())
+                        token.setRefreshToken(refreshToken);
+
+                    token.setAccessToken(accessToken);
+
+                    if (expiresInSeconds != null)
+                        token.setAccessTokenExpiryAt(
+                                Instant.now().plusSeconds(expiresInSeconds)
+                        );
+                    return gmailTokenRepository.save(token);
+                });
+    }
 }

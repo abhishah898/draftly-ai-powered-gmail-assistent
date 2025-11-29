@@ -1,30 +1,35 @@
 package com.assistent.draftly.entity;
 
-import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
 
-@Entity
 @Getter
 @Setter
-@Table(name = "gmail_token")
+@Table("gmail_token")
 public class GmailToken {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @Column(nullable = false)
+    @Id
+    private Long id;     // AUTO_INCREMENT handled by DB schema
+
+    @NotNull
     private String googleUserId;
 
-    @Column(nullable = false)
+    @NotNull
+    @Email
     private String email;
 
-    @Column(length = 2000)
+    @Size(max = 2000)
     private String refreshToken;
 
-    @Column(length = 2000)
+    @Size(max = 2000)
     private String accessToken;
 
     private Instant accessTokenExpiryAt;

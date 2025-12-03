@@ -72,7 +72,6 @@ public class GmailOAuthService {
                 .encode()                 // <-- ensure spaces are percent-encoded
                 .toUri();
 
-        System.out.println("AUTH URL ---> " + uri); // temporary debug: inspect the final URL
         return uri;
     }
 

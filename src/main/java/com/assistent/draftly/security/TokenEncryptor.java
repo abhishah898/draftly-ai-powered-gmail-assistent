@@ -1,23 +1,25 @@
 package com.assistent.draftly.security;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.encrypt.Encryptors;
-import org.springframework.security.crypto.encrypt.TextEncryptor;
+import org.springframework.security.crypto.encrypt.BytesEncryptor;
+import org.springframework.stereotype.Component;
 
+import java.util.Base64;
+
+@Component
 public class TokenEncryptor {
-    @Value("${security.encryption.secret-key}")
-    private static String SECRET_KEY;
+    private final BytesEncryptor encryptor;
 
-    @Value("${security.encryption.secret-key}")
-    private static String SALT;
-
-    private static final TextEncryptor textEncryptor = Encryptors.text(SECRET_KEY, SALT);
-
-    public static String encryptToken(String token) {
-        return textEncryptor.encrypt(token);
+    public TokenEncryptor(BytesEncryptor bytesEncryptor) {
+        this.encryptor = bytesEncryptor;
     }
 
-    public static String decryptToken(String encryptedToken) {
-        return textEncryptor.decrypt(encryptedToken);
+    public String encryptToken(String token) {
+        byte[] encryptedBytes = encryptor.encrypt(token.getBytes());
+        return Base64.getEncoder().encodeToString(encryptedBytes);
+    }
+
+    public String decryptToken(String encryptedToken) {
+        byte[] decryptedBytes = encryptor.decrypt(Base64.getDecoder().decode(encryptedToken));
+        return new String(decryptedBytes);
     }
 }

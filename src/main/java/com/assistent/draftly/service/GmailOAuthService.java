@@ -2,6 +2,7 @@ package com.assistent.draftly.service;
 
 import com.assistent.draftly.entity.GmailToken;
 import com.assistent.draftly.repository.GmailTokenRepository;
+import com.assistent.draftly.security.TokenEncryptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,8 @@ public class GmailOAuthService {
     private final WebClient webClient;
 
     private final GmailTokenRepository gmailTokenRepository;
+
+    private final TokenEncryptor tokenEncryptor;
 
     @Value("${app.google.client-id}")
     private String id;
@@ -43,11 +46,13 @@ public class GmailOAuthService {
     @Value("${app.google.gmail-api-base}")
     private String gmailBase;
 
-    public GmailOAuthService(GmailTokenRepository repo) {
+    public GmailOAuthService(GmailTokenRepository repo
+            , TokenEncryptor tokenEncryptor) {
         this.webClient = WebClient.builder()
                 .codecs(config -> config.defaultCodecs().maxInMemorySize(10 * 1024 * 1024)) // 10 MB
                 .build();
         this.gmailTokenRepository = repo;
+        this.tokenEncryptor = tokenEncryptor;
     }
 
     public Mono<Map> getUserInfoFromAccessToken(String accessToken) {
@@ -115,9 +120,9 @@ public class GmailOAuthService {
 
                     // check if refresh token expired
                     if (refreshToken != null && !refreshToken.isBlank())
-                        token.setRefreshToken(refreshToken);
+                        token.setRefreshToken(tokenEncryptor.encryptToken(refreshToken));
 
-                    token.setAccessToken(accessToken);
+                    token.setAccessToken(tokenEncryptor.encryptToken(accessToken));
 
                     if (expiresInSeconds != null)
                         token.setAccessTokenExpiryAt(

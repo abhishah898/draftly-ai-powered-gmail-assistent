@@ -2,8 +2,10 @@ package com.assistent.draftly;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @SpringBootApplication
+@ConfigurationPropertiesScan("com.assistent.draftly.config")
 public class DraftlyApplication {
 
     public static void main(String[] args) {
